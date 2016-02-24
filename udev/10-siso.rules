@@ -1,0 +1,2 @@
+SUBSYSTEM=="menable", GROUP="video", RUN="/sbin/men_path_id %p"
+SUBSYSTEM=="menable_uiq", RUN="/sbin/men_uiq %p"

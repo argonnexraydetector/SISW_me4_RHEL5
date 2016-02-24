@@ -1,0 +1,16 @@
+SET(SISO_SOURCE "@CMAKE_CURRENT_SOURCE_DIR@/../..")
+# the binary directory does not need to exist (but it's parent)
+# it will be deleted before use
+SET(SISO_LINUXDRV_BUILD "@CMAKE_CURRENT_BINARY_DIR@")
+
+# if you don't want to run a Nightly, but e.g. an Experimental build
+# SET(dashboard_model "Experimental")
+
+# if your "svn" executable is not in path
+SET(SVNCommand "@SVNCOMMAND@")
+
+# If the build directory should be deleted after submission
+# SET(SISO_BUILD_REMOVE TRUE)
+
+# This _*MUST*_ be the last command in this file!
+INCLUDE(${SISO_SOURCE}/driver/linux/ctest_linuxdriver.cmake)

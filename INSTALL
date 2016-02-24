@@ -1,0 +1,211 @@
+--- Installing the microEnable III/IV Linux driver ---
+
+The Linux driver for microEnable III/IV/5 (from now on called "driver")
+supports all hardware types of all device families starting with the
+microEnable III.
+
+As of July 2013 (driver version 3.9.17/4.0.6) these are:
+* microEnable III
+* microEnable III XXL
+* microEnable IV BASE x1
+* microEnable IV FULL x1
+* microEnable IV FULL x4
+* microEnable IV GigE x4
+* microEnable IV AS1-CL
+* microEnable IV AD1-CL
+* microEnable IV VD1-CL
+* microEnable IV VD4-CL
+* microEnable IV AQ4-GE
+* microEnable IV VQ4-GE
+* microEnable 5 AQ8-CXP6B
+
+All commands in this documentation should be run as an ordinary user.
+Whenever administrative privileges are required it will be stated
+explicitly.
+
+
+= Prerequisites =
+
+These installation instructions are written for and tested on Ubuntu 12.04
+LTS. They will work mostly the same on other versions of Ubuntu and Linux
+distributions based on Debian, including Debian Linux itself. At the end of
+this document you will find notes to help you install the driver if you run
+into problems when using other Linux distributions.
+
+Ubuntu 12.04 LTS comes with all prerequisites needed to compile and install
+the driver in the default installation.
+
+Please make sure that the system is up-to-date.
+If the kernel is updated at a later point, you will have to re-build and
+install the driver again. You can manually update the system by opening a
+terminal and entering the commands
+
+	sudo apt-get update
+	sudo apt-get dist-upgrade
+
+
+= Unpacking the driver sources =
+
+To unpack the driver sources either double-click the file 
+menable_linuxdrv_src_3.9.17_4.0.6.tar.bz2 and select "Extract" in the Archive
+Manager, or open a terminal, go to the directory where you want to unpack the
+sources and enter the command
+
+	tar xjvf menable_linuxdrv_src_3.9.17_4.0.6.tar.bz2
+
+
+= Building and installing the driver =
+
+To build and install the driver, you need to open a terminal and go to the
+directory where you unpacked the driver sources. Then you simply enter the
+commands
+
+	make && sudo make install
+
+and provide your password when asked. All necessary files will be built and
+installed.
+
+To load the driver enter the command
+
+	sudo modprobe menable
+
+You can check if the driver was loaded correctly and all microEnable boards
+were found by entering the command
+
+	dmesg | grep menable
+
+At this point the driver should now load automatically when you have to reboot
+the computer.
+
+
+= Preparing your user's account =
+
+Once the driver is loaded, you can access the microEnable boards only with
+administrative privileges. To enable your user's account to use the devices,
+you need to add them to the group "video". You can do so by opening a terminal
+and entering the command (replace <username> with the name of your user's
+account)
+
+	sudo usermod -aG video <username>
+
+You have to logout and re-login to apply the changes in group membership.
+Now you should be able to fully use the microEnable boards from your user's
+account.
+
+
+= Uninstalling =
+
+If you want to uninstall the driver completely, you simply enter the following
+commands in a terminal
+
+	sudo rmmod menable.ko
+	sudo rm /etc/udev/rules.d/10-siso.rules
+	sudo rm /sbin/men_path_id /sbin/men_uiq
+	sudo rm `find /etc/modules -name menable.ko`
+
+Please note that ` above must be a backtick, usually entered as accent grave.
+You can simply enter the find command seperately, note the path of menable.ko
+and then call sudo rm with that path.
+
+
+= Troubleshooting =
+
+* When the kernel is updated, you have to re-build the driver module and
+  install it again. You can do this by opening a terminal and entering the
+  commands
+
+	make clean
+	make && sudo make install
+
+* On some Linux distributions you will have to install some prerequisites
+  before you can build kernel modules. Since there are multiple standards for
+  package management and even more for naming packages, this document can only
+  provide general suggestions.
+  Basically, what you need is a working C compiler and the kernel build
+  environment, usually referred to as either linux headers, kernel headers, or
+  kernel source.
+  You can test for a working C compiler by opening a terminal and entering the
+  command
+
+	gcc -v
+
+  This should give you the version of gcc if it is installed, or an error
+  message saying that the command could not be found if it is not installed.
+  The kernel build environment can usually be found through a link in the
+  kernel directory in /lib/modules/. Entering the command
+
+	ls -l /lib/modules/$(uname -r)/build
+
+  should show you the directory or link. If you get an error message, saying
+  that the file or directory could not be found, you need to install the
+  kernel build environment first.
+  Most times, a simple search on the internet on "how do I compile a kernel
+  module on <Linux distribution>" will give you a starting point.
+  Read the documentation for your Linux distribution and look up package
+  management. Using the package manager search for packages called gcc,
+  build-essential, linux-headers, kernel-headers, linux-source, or
+  kernel-source.
+
+* If "make" fails to build the driver module then you either have a kernel
+  which is too old, or too new, or you need to install prerequisites for
+  building kernel modules (see above).
+  Please note that kernels older than version 2.6.23 will not be supported.
+  You can find the kernel version by opening a terminal and entering the
+  command
+
+	uname -r
+
+  If you have a kernel that is newer than version 2.6.23 but the build fails,
+  please contact our support and include in the email the error messages in
+  the output of the make command, the name and version of your Linux
+  distribution (e.g. Fedora 11, openSuse 11.4) and the output of the command
+
+	uname -a
+
+* Depending on the distribution you use, you either have to use "sudo" and
+  enter the user's password, or "su -" and enter the root password to gain
+  administrative privileges. On distributions with root account and no sudo
+  policy, you build and install the driver by entering the commands
+
+	make
+	su -
+		[you are asked for the root password]
+	make install
+	exit
+
+  All other commands that were preceeded with "sudo" in the instructions above
+  have to be entered accordingly (replace <command> with the actual command
+  after "sudo")
+
+	su -
+		[you are asked for the root password]
+	<command>
+	exit
+
+* If the driver was built correctly but you cannot "modprobe" it, you can try
+  to manually load it by going to the directory where you built it and
+  entering the command
+
+	sudo insmod ./menable.ko
+
+  If the driver still can't be loaded, maybe your kernel build environment
+  does not match the running kernel.
+
+* If the driver is not loaded automatically after rebooting the computer, you
+  may need to add the driver to a list of modules that should be loaded at
+  startup, or the module dependency database is broken, or the driver is not
+  installed correctly. This is completely dependant on the Linux distribution
+  that is used.
+
+* On some Linux distributions the group "video" might not exist. You might
+  need to use addgroup, or groupadd, or some similar program to add the group
+  to your system. The group can be added manually to the file /etc/group. Be
+  careful, however, when editing system files by hand, as you might break
+  things.
+
+* If your distribution does not use udev, or the udev configuration works
+  substantially different than adding scripts to /etc/udev/rules.d/, you
+  need to figure out how to integrate loading of the driver, changing the
+  rights and ownership of the device nodes /dev/menable*, and applying the
+  configuration scripts men_path_id and men_uiq after installation of the
+  sysfs device interfaces.

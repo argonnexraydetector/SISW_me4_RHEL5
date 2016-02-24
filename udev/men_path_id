@@ -1,0 +1,22 @@
+#!/bin/sh
+
+echo $1 | sed 's#.*/##'
+
+chgrp video /sys$1/pci_dev/resource[0-3]
+chmod g+rw  /sys$1/pci_dev/resource[0-3]
+if [ -f /sys$1/design_clk ]; then
+	chgrp video /sys$1/design_clk
+fi
+if [ -f /sys$1/design_crc ]; then
+	chgrp video /sys$1/design_crc
+fi
+if [ -f /sys$1/board_info ]; then
+	chgrp video /sys$1/board_info
+fi
+if [ -f /sys$1/eeprom ]; then
+	chgrp video /sys$1/eeprom
+fi
+chgrp video /sys$1/design_name
+chgrp video /sys$1/dma_channels
+
+exit 0

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+chgrp video /sys$1/data
+chgrp video /sys$1/fill
+chgrp video /sys$1/irqcnt
+chgrp video /sys$1/lost
+chgrp video /sys$1/size
+chgrp video /sys$1/timeout
+
+exit 0
